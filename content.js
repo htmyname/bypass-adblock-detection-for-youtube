@@ -36,7 +36,7 @@ function removeAdblockModal() {
     }
 
     if (Date.now() - observerActiveSince > 15000) {
-        console.log("Timeout 15s alcanzado — deteniendo observer");
+        console.log("Timeout 15s — stopping observer");
         stopObserver();
         return;
     }
@@ -44,10 +44,10 @@ function removeAdblockModal() {
     if (video && video.currentTime > 15 && Date.now() - observerActiveSince > 15000) {
         const liveBadge = document.querySelector('.ytp-live-badge');
         if (liveBadge && liveBadge.offsetParent !== null) {
-            console.log("Directo activo detectado — no intervenir");
+            console.log("Live detected — do nothing");
             if (!liveTimeout) {
                 liveTimeout = setTimeout(() => {
-                    console.log("Timeout en directo — deteniendo observer");
+                    console.log("Timeout in live — stopping observer");
                     stopObserver();
                     liveTimeout = null;
                 }, 15000);
