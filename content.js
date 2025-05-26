@@ -11,7 +11,7 @@ const observer = new MutationObserver(removeAdblockModal);
 // Observer Management
 function startObserver() {
     observerActiveSince = Date.now();
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, {childList: true, subtree: true});
     console.log('Observer connected');
     addVideoEvent();
 }
@@ -35,13 +35,7 @@ function removeAdblockModal() {
         playVideoIfPaused();
     }
 
-    if (Date.now() - observerActiveSince > 15000) {
-        console.log("Timeout 15s — stopping observer");
-        stopObserver();
-        return;
-    }
-
-    if (video && video.currentTime > 15 && Date.now() - observerActiveSince > 15000) {
+    if (video && video.currentTime > 15) {
         const liveBadge = document.querySelector('.ytp-live-badge');
         if (liveBadge && liveBadge.offsetParent !== null) {
             console.log("Live detected — do nothing");
@@ -53,7 +47,10 @@ function removeAdblockModal() {
                 }, 15000);
             }
         } else {
-            stopObserver();
+            if (Date.now() - observerActiveSince > 15000) {
+                console.log("Timeout 15s — stopping observer");
+                stopObserver();
+            }
         }
     }
 }
