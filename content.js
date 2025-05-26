@@ -6,6 +6,25 @@ let video = document.querySelector('.video-stream.html5-main-video');
 let liveTimeout = null;
 let observerActiveSince;
 
+const observer = new MutationObserver(removeAdblockModal);
+
+// Observer Management
+function startObserver() {
+    observerActiveSince = Date.now();
+    observer.observe(document.body, { childList: true, subtree: true });
+    console.log('Observer connected');
+    addVideoEvent();
+}
+
+function stopObserver() {
+    observer.disconnect();
+    console.log('Observer disconnected');
+    if (video) {
+        video.removeEventListener('pause', playPauseHandler);
+    }
+}
+
+// Modal Handling y Video Control
 function removeAdblockModal() {
     const dismissButton = document.querySelector('#dismiss-button button');
     video = document.querySelector('.video-stream.html5-main-video');
@@ -15,11 +34,13 @@ function removeAdblockModal() {
         dismissButton.click();
         playVideoIfPaused();
     }
+
     if (Date.now() - observerActiveSince > 15000) {
         console.log("Timeout 15s alcanzado — deteniendo observer");
         stopObserver();
         return;
     }
+
     if (video && video.currentTime > 15 && Date.now() - observerActiveSince > 15000) {
         const liveBadge = document.querySelector('.ytp-live-badge');
         if (liveBadge && liveBadge.offsetParent !== null) {
@@ -52,21 +73,7 @@ function playVideoIfPaused() {
     }
 }
 
-const observer = new MutationObserver(removeAdblockModal);
-
-function startObserver() {
-    observerActiveSince = Date.now();
-    observer.observe(document.body, {childList: true, subtree: true});
-    console.log('Observer connected');
-    addVideoEvent();
-}
-
-function stopObserver() {
-    observer.disconnect();
-    console.log('Observer disconnected');
-    video.removeEventListener('pause', playPauseHandler);
-}
-
+// Video Playback Event Management
 function playPauseHandler() {
     console.log('User manually paused the video');
     userInteractedBtn = true;
@@ -82,7 +89,7 @@ function addVideoEvent() {
     }
 }
 
-// Función para reiniciar observer al cambiar URL
+// URL Change Handling
 function onUrlChange() {
     console.log('Checking URL change...');
     if (location.href !== lastUrl) {
@@ -96,15 +103,19 @@ function onUrlChange() {
     }
 }
 
+// Visibility Change Handling
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         console.log('Tab is active again — reactivating observer if needed');
         stopObserver();
-        video.removeEventListener('pause', playPauseHandler);
+        if (video) {
+            video.removeEventListener('pause', playPauseHandler);
+        }
         startObserver();
     }
 });
 
+// Message Listener
 chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'urlChanged') {
         console.log('Content script: URL changed to', message.url);
@@ -112,5 +123,5 @@ chrome.runtime.onMessage.addListener((message) => {
     }
 });
 
+// Init
 startObserver();
-
