@@ -1,48 +1,39 @@
-# 📦 YouTube Adblock Bypass
+# YouTube Adblock Bypass Extension
 
-An extension to automatically bypass the AdBlock warning modal on YouTube, resume video playback, and allow users to customize the maximum active time for the DOM observer.
+A lightweight web extension that automatically detects and bypasses YouTube's adblock detection modals, resumes video playback if paused, and intelligently handles live streams and video playback events.
 
----
+## 📦 Features
 
-## 📑 Description
+- Detects and dismisses YouTube’s adblock modals.
+- Automatically resumes video playback if paused by modal.
+- Observes URL changes and reloads the observer accordingly.
+- Customizable observer timeout via extension popup.
+- Smart handling for live streams and videos already in progress.
 
-This extension detects and removes YouTube’s AdBlock warning modal. It also resumes video playback if it was paused by the modal. It supports URL changes in YouTube’s SPA navigation, and handles live videos and videos already in progress.
+## 📸 Screenshots
 
-Users can configure the maximum observer active time through the popup (default: 15 seconds).
-
----
+(Add screenshots here after your extension is published and approved. You can take screenshots via Chrome's extension popup or page actions, and upload them to your repo.)
 
 ## 🛠️ Installation
 
-1. Clone or download this repository.
+1. Clone the repository.
 2. Go to `chrome://extensions/` in your browser.
-3. Enable **Developer mode**.
-4. Click **Load unpacked**.
-5. Select the project folder.
+3. Enable **Developer Mode**.
+4. Click **Load unpacked** and select the extension folder.
 
----
+## 📃 License
 
-## 📋 Required Permissions
+This project is licensed under the [Apache License 2.0](LICENSE).
 
-- `storage`
-- `tabs`
-- `webNavigation`
+### 📌 License Scope Notice
 
----
+As of **May 29, 2025**, this project is licensed under the Apache License 2.0.  
+All previous commits and code history are retroactively covered by this license unless explicitly stated otherwise.
 
-## 📷 Screenshots
-
----
-
-## License
-
-This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
-
-### License Scope Notice
-
-As of 2025-05-29, this project is licensed under the Apache License 2.0. All previous commits and code history are retroactively covered by this license, unless explicitly stated otherwise.
 ---
 
 ## 📬 Contact
 
-To report bugs or suggest improvements, open an issue or contact me directly.
+For issues, feature requests, or contributions, please open an issue or submit a pull request.
+
+**Repository:** [YouTube Adblock Bypass](https://github.com/htmyname/youtube-adblock-bypass)
