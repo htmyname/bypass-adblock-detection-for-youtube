@@ -12,7 +12,7 @@ A lightweight web extension that automatically detects and bypasses YouTube's ad
 
 ## 📸 Screenshots
 
-https://github.com/htmyname/youtube-adblock-bypass/blob/main/popup.png
+[Popup Example](popup.png)
 
 ## 🛠️ Installation
 
