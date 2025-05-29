@@ -12,7 +12,7 @@ A lightweight web extension that automatically detects and bypasses YouTube's ad
 
 ## 📸 Screenshots
 
-[Popup Example](popup.png)
+![Popup Example](popup.png)
 
 ## 🛠️ Installation
 
