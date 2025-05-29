@@ -12,7 +12,7 @@ A lightweight web extension that automatically detects and bypasses YouTube's ad
 
 ## 📸 Screenshots
 
-(Add screenshots here after your extension is published and approved. You can take screenshots via Chrome's extension popup or page actions, and upload them to your repo.)
+https://github.com/htmyname/youtube-adblock-bypass/blob/main/popup.png
 
 ## 🛠️ Installation
 
