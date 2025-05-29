@@ -34,6 +34,15 @@ Users can configure the maximum observer active time through the popup (default:
 
 ---
 
+## License
+
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
+
+### License Scope Notice
+
+As of 2025-05-29, this project is licensed under the Apache License 2.0. All previous commits and code history are retroactively covered by this license, unless explicitly stated otherwise.
+---
+
 ## 📬 Contact
 
 To report bugs or suggest improvements, open an issue or contact me directly.
