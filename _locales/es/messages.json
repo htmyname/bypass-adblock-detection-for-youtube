@@ -1,5 +1,20 @@
-{	
+{
 	"extensionDescription": {
 		"message": "Cierra automáticamente el mensaje de 'Los bloqueadores de anuncios no se permiten en YouTube' para que los videos se reproduzcan sin interrupciones."
+	},
+	"noRangeValueMsg": {
+		"message": "Introduce un valor entre 5 y 60 segundos"
+	},
+	"successMsg": {
+		"message": "Guardado correctamente"
+	},
+	"defaultMsg": {
+		"message": "Si el valor es demasiado bajo, la extensión podría no funcionar correctamente"
+	},
+	"monitoringMsg": {
+		"message": "Tiempo de monitoreo (segundos)"
+	},
+	"saveMsg": {
+		"message": "Guardar"
 	}
 }

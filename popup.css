@@ -1,0 +1,81 @@
+/* popup.css */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
+    font-size: 15px; /* Ligeramente más grande */
+    margin: 0; /* Eliminar margen para control total */
+    padding: 20px; /* Aumentar padding para más espacio interno */
+    color: #333; /* Color de texto más suave */
+    background-color: #f7f9fc; /* Fondo ligeramente azulado/grisáceo */
+    min-width: 280px; /* Ancho mínimo un poco mayor */
+    min-height: 160px; /* Alto mínimo un poco mayor */
+    line-height: 1.5; /* Espaciado entre líneas para mejor lectura */
+    display: flex; /* Usar flexbox para centrar contenido */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h4 {
+    margin: 0 0 20px 0; /* Más espacio debajo del título */
+    font-weight: 600;
+    color: #2c3e50; /* Color más oscuro para el título */
+    font-size: 1.1em; /* Ligeramente más grande que el texto base */
+    text-align: center; /* Centrar el título */
+}
+
+input[type="number"] {
+    width: 80px; /* Ancho del input un poco mayor */
+    padding: 8px 12px; /* Más padding para mayor área de clic/toque */
+    font-size: 16px; /* Texto más grande en el input */
+    border: 1px solid #c0d0e0; /* Borde más suave */
+    border-radius: 6px; /* Bordes más redondeados */
+    text-align: center; /* Centrar el texto en el input */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Transiciones suaves */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); /* Sombra interna sutil */
+}
+
+input[type="number"]:focus {
+    border-color: #66afe9; /* Borde azul al enfocar */
+    outline: none; /* Eliminar outline por defecto */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Sombra de enfoque */
+}
+
+button {
+    background-color: #007bff;
+    border: none;
+    padding: 10px 20px; /* Más padding para el botón */
+    color: white;
+    font-size: 16px; /* Texto más grande en el botón */
+    border-radius: 6px; /* Bordes más redondeados */
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Añadir transform para efecto de clic */
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2); /* Sombra para el botón */
+    margin-left: 10px; /* Espacio entre input y botón */
+}
+
+button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); /* Sombra más pronunciada en hover */
+}
+
+button:active {
+    background-color: #004085;
+    transform: translateY(1px); /* Efecto de "presionado" */
+    box-shadow: 0 1px 2px rgba(0, 123, 255, 0.2); /* Sombra reducida al presionar */
+}
+
+/* Contenedor para el input y el botón */
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px; /* Espacio debajo del grupo */
+}
+
+#status {
+    font-size: 13px;
+    color: #666;
+    margin-top: 10px; /* Espacio encima del mensaje de estado */
+    text-align: center;
+    min-height: 39px;
+}
