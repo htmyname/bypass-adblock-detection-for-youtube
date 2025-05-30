@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Youtube Adblock Bypass",
-  "version": "1.6",
+  "version": "1.6.1",
   "description": "__MSG_extensionDescription__",
   "default_locale": "en",
   "permissions": [
@@ -23,7 +23,7 @@
       "js": [
         "content.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ],
   "icons": {

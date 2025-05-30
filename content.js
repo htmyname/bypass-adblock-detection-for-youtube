@@ -2,10 +2,11 @@ console.log('Observer initialized, waiting for YouTube adblock modal...');
 
 let userInteractedBtn = false;
 let lastUrl = location.href;
-let video = document.querySelector('.video-stream.html5-main-video');
+let video = undefined;
 let liveTimeout = null;
 let observerActiveSince;
 let observerTimeout = 15;
+let videoListenerAdded = false;
 
 const observer = new MutationObserver(removeAdblockModal);
 
@@ -14,7 +15,6 @@ function startObserver() {
     observerActiveSince = Date.now();
     observer.observe(document.body, {childList: true, subtree: true});
     console.log('Observer connected');
-    addVideoEvent();
 }
 
 function stopObserver() {
@@ -22,6 +22,7 @@ function stopObserver() {
     console.log('Observer disconnected');
     if (video) {
         video.removeEventListener('pause', playPauseHandler);
+        videoListenerAdded = false;
     }
 }
 
@@ -29,6 +30,11 @@ function stopObserver() {
 function removeAdblockModal() {
     const dismissButton = document.querySelector('#dismiss-button button');
     video = document.querySelector('.video-stream.html5-main-video');
+
+    if (video && !videoListenerAdded){
+        videoListenerAdded = true;
+        addVideoEvent();
+    }
 
     if (dismissButton) {
         console.log("Adblock modal detected — dismissing now...");
@@ -73,15 +79,19 @@ function playVideoIfPaused() {
 
 // Video Playback Event Management
 function playPauseHandler() {
-    console.log('User manually paused the video');
+    if (!video) return;
     userInteractedBtn = true;
-    if (video.currentTime > observerTimeout && Date.now() - observerActiveSince > observerTimeout * 1000) {
-        stopObserver();
+    if (video.paused) {
+        console.log('User manually paused the video');
+        if (video.currentTime > observerTimeout && Date.now() - observerActiveSince > observerTimeout * 1000) {
+            stopObserver();
+        }
+    }else{
+        userInteractedBtn = false;
     }
 }
 
 function addVideoEvent() {
-    video = document.querySelector('.video-stream.html5-main-video');
     if (video) {
         video.addEventListener('pause', playPauseHandler);
     }
@@ -105,6 +115,10 @@ function loadObserverTimeout() {
     chrome.storage.local.get(['observerTimeout'], (result) => {
         if (result.observerTimeout) {
             observerTimeout = result.observerTimeout;
+            console.log(`Timeout cargado: ${observerTimeout} s`);
+            startObserver();
+        } else {
+            observerTimeout = 15;
             console.log(`Timeout cargado: ${observerTimeout} s`);
             startObserver();
         }
