@@ -1,4 +1,6 @@
 chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
+    console.log(details)
+
     if (!details.url.includes("youtube.com/watch")) return;
 
     // Obtiene la pestaña activa en la ventana donde ocurrió el cambio
@@ -17,5 +19,11 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
     }
 }, {
     url: [{hostContains: 'youtube.com'}]
+});
+
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'wakeup') {
+        console.log('Background wakeup');
+    }
 });
 

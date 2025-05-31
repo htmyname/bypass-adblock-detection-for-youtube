@@ -150,10 +150,15 @@ function loadObserverTimeout() {
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         console.log('Tab is active again — reactivating observer if needed');
+        chrome.runtime.sendMessage({ type: 'wakeup' });
         stopObserver();
         startObserver();
     }
 });
+
+document.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ type: 'wakeup' });
+})
 
 // Message Listener
 chrome.runtime.onMessage.addListener((message) => {
