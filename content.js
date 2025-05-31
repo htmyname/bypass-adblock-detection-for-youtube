@@ -3,6 +3,7 @@ console.log('Observer initialized, waiting for YouTube adblock modal...');
 let userInteractedBtn = false;
 let lastUrl = location.href;
 let video = undefined;
+let playBtn = undefined;
 let liveTimeout = null;
 let observerActiveSince;
 let observerTimeout = 15;
@@ -21,8 +22,11 @@ function stopObserver() {
     observer.disconnect();
     console.log('Observer disconnected');
     if (video) {
-        video.removeEventListener('pause', playPauseHandler);
+        document.removeEventListener('keydown', onKeydown);
+        video.removeEventListener('click', onVideoClick);
+        playBtn.removeEventListener('click', onPlayBtnClick);
         videoListenerAdded = false;
+        liveTimeout = null;
     }
 }
 
@@ -30,8 +34,9 @@ function stopObserver() {
 function removeAdblockModal() {
     const dismissButton = document.querySelector('#dismiss-button button');
     video = document.querySelector('.video-stream.html5-main-video');
+    playBtn = document.querySelector('.ytp-play-button.ytp-button');
 
-    if (video && !videoListenerAdded){
+    if (video && playBtn && !videoListenerAdded) {
         videoListenerAdded = true;
         addVideoEvent();
     }
@@ -80,20 +85,36 @@ function playVideoIfPaused() {
 // Video Playback Event Management
 function playPauseHandler() {
     if (!video) return;
-    userInteractedBtn = true;
     if (video.paused) {
         console.log('User manually paused the video');
         if (video.currentTime > observerTimeout && Date.now() - observerActiveSince > observerTimeout * 1000) {
             stopObserver();
         }
-    }else{
-        userInteractedBtn = false;
     }
+}
+
+function onKeydown(e) {
+    if (e.code === 'Space' || e.code === 'KeyK') {
+        userInteractedBtn = true;
+        setTimeout(playPauseHandler, 250);
+    }
+}
+
+function onVideoClick() {
+    userInteractedBtn = true;
+    setTimeout(playPauseHandler, 250);
+}
+
+function onPlayBtnClick() {
+    userInteractedBtn = true;
+    setTimeout(playPauseHandler, 250);
 }
 
 function addVideoEvent() {
     if (video) {
-        video.addEventListener('pause', playPauseHandler);
+        document.addEventListener('keydown', onKeydown);
+        video.addEventListener('click', onVideoClick);
+        playBtn.addEventListener('click', onPlayBtnClick);
     }
 }
 
@@ -130,9 +151,6 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         console.log('Tab is active again — reactivating observer if needed');
         stopObserver();
-        if (video) {
-            video.removeEventListener('pause', playPauseHandler);
-        }
         startObserver();
     }
 });
