@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Youtube Adblock Bypass  — auto-close \"ad blockers not allowed\" popup",
+  "name": "__MSG_extensionName__",
   "version": "1.7",
   "description": "__MSG_extensionDescription__",
   "default_locale": "en",

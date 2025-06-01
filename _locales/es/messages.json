@@ -1,4 +1,7 @@
 {
+	"extensionName": {
+		"message": "Youtube Adblock Bypass  — videos sin interrupciones"
+	},
 	"extensionDescription": {
 		"message": "Cierra automáticamente el mensaje de 'Los bloqueadores de anuncios no se permiten en YouTube' para que los videos se reproduzcan sin interrupciones."
 	},
