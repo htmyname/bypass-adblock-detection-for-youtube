@@ -4,6 +4,7 @@ let userInteractedBtn = false;
 let lastUrl = location.href;
 let video = undefined;
 let playBtn = undefined;
+let modal = undefined;
 let liveTimeout = null;
 let observerActiveSince;
 let observerTimeout = 15;
@@ -19,6 +20,9 @@ function startObserver() {
 }
 
 function stopObserver() {
+    if (modal){
+        modal.remove();
+    }
     observer.disconnect();
     console.log('Observer disconnected');
     if (video) {
@@ -35,6 +39,7 @@ function removeAdblockModal() {
     const dismissButton = document.querySelector('#dismiss-button button');
     video = document.querySelector('.video-stream.html5-main-video');
     playBtn = document.querySelector('.ytp-play-button.ytp-button');
+    modal = document.querySelector('.ytd-popup-container .tp-yt-paper-dialog');
 
     if (video && playBtn && !videoListenerAdded) {
         videoListenerAdded = true;
@@ -47,7 +52,7 @@ function removeAdblockModal() {
         playVideoIfPaused();
     }
 
-    if (video && video.currentTime > observerTimeout) {
+    if (video && video.currentTime > observerTimeout && observerTimeout !== 0) {
         const liveBadge = document.querySelector('.ytp-live-badge');
         if (liveBadge && liveBadge.offsetParent !== null) {
             console.log("Live detected — do nothing");
@@ -70,11 +75,10 @@ function removeAdblockModal() {
 function playVideoIfPaused() {
     if (!video) return;
 
-    if (video.paused && video.currentTime <= observerTimeout && !userInteractedBtn) {
+    if ((video.paused && video.currentTime <= observerTimeout || observerTimeout === 0) && !userInteractedBtn) {
         video.play();
         console.log("Video playback resumed");
     } else if (video.currentTime > observerTimeout) {
-        const modal = document.querySelector('.ytd-popup-container .tp-yt-paper-dialog');
         if (modal) {
             console.log("Late modal detected, removing now...");
             modal.remove();
@@ -87,7 +91,7 @@ function playPauseHandler() {
     if (!video) return;
     if (video.paused) {
         console.log('User manually paused the video');
-        if (video.currentTime > observerTimeout && Date.now() - observerActiveSince > observerTimeout * 1000) {
+        if (video.currentTime > observerTimeout && Date.now() - observerActiveSince > observerTimeout * 1000 && observerTimeout !== 0) {
             stopObserver();
         }
     }
@@ -134,7 +138,8 @@ function onUrlChange() {
 
 function loadObserverTimeout() {
     chrome.storage.local.get(['observerTimeout'], (result) => {
-        if (result.observerTimeout) {
+        console.log('localstorage:', result.observerTimeout)
+        if (result.observerTimeout >= 5 || result.observerTimeout <= 60 || result.observerTimeout === 0) {
             observerTimeout = result.observerTimeout;
             console.log(`Timeout cargado: ${observerTimeout} s`);
             startObserver();

@@ -4,17 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar valor actual
     chrome.storage.local.get(['observerTimeout'], (result) => {
-        if (result.observerTimeout) {
+        if (result.observerTimeout >= 0 || result.observerTimeout <= 60) {
             input.value = result.observerTimeout;
         }
     });
 
     document.getElementById('saveBtn').addEventListener('click', () => {
         const newTimeout = parseInt(input.value);
-        if (isNaN(newTimeout) || newTimeout < 5 || newTimeout > 60) {
-            status.style.color = "#dc3545"
-            status.textContent = chrome.i18n.getMessage("noRangeValueMsg");
-            return;
+        if ((isNaN(newTimeout) || newTimeout < 5 || newTimeout > 60) && newTimeout !== 0) {
+                status.style.color = "#dc3545"
+                status.textContent = chrome.i18n.getMessage("noRangeValueMsg");
+                return;
         }
 
         chrome.storage.local.set({ observerTimeout: newTimeout }, () => {

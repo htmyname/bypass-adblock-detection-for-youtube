@@ -9,7 +9,7 @@
 		"message": "Saved successfully"
 	},
 	"defaultMsg": {
-		"message": "If the value is too low, the extension might not work properly"
+		"message": "If the value is too low, the extension might not work properly. You can also enter 0 to never disable monitoring"
 	},
 	"monitoringMsg": {
 		"message": "Monitoring time (seconds)"

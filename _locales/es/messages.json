@@ -9,7 +9,7 @@
 		"message": "Guardado correctamente"
 	},
 	"defaultMsg": {
-		"message": "Si el valor es demasiado bajo, la extensión podría no funcionar correctamente"
+		"message": "Si el valor es demasiado bajo, la extensión podría no funcionar correctamente. También puedes introducir 0 para no desactivar nunca el monitoreo"
 	},
 	"monitoringMsg": {
 		"message": "Tiempo de monitoreo (segundos)"
