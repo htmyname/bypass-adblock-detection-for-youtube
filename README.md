@@ -2,6 +2,8 @@
 
 A lightweight web extension that automatically detects and bypasses YouTube's adblock detection modals, resumes video playback if paused, and intelligently handles live streams and video playback events.
 
+[![Chrome Web Store](chrome_badge.png)](https://chromewebstore.google.com/detail/youtube-adblock-bypass/cafgkebgclpflmccjadifjhanfgiekee)
+
 ## 📦 Features
 
 - Detects and dismisses YouTube’s adblock modals.
