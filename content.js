@@ -4,7 +4,6 @@ let userInteractedBtn = false;
 let lastUrl = location.href;
 let video = undefined;
 let playBtn = undefined;
-let modal = undefined;
 let liveTimeout = null;
 let observerActiveSince;
 let observerTimeout = 15;
@@ -17,14 +16,13 @@ function startObserver() {
     observerActiveSince = Date.now();
     observer.observe(document.body, {childList: true, subtree: true});
     console.log('Observer connected');
+    addShareListener();
 }
 
 function stopObserver() {
-    if (modal){
-        modal.remove();
-    }
     observer.disconnect();
     console.log('Observer disconnected');
+    removeShareListener();
     if (video) {
         document.removeEventListener('keydown', onKeydown);
         video.removeEventListener('click', onVideoClick);
@@ -39,7 +37,6 @@ function removeAdblockModal() {
     const dismissButton = document.querySelector('#dismiss-button button');
     video = document.querySelector('.video-stream.html5-main-video');
     playBtn = document.querySelector('.ytp-play-button.ytp-button');
-    modal = document.querySelector('.ytd-popup-container .tp-yt-paper-dialog');
 
     if (video && playBtn && !videoListenerAdded) {
         videoListenerAdded = true;
@@ -47,8 +44,10 @@ function removeAdblockModal() {
     }
 
     if (dismissButton) {
-        console.log("Adblock modal detected — dismissing now...");
-        dismissButton.click();
+        if (isVisible(dismissButton)) {
+            console.log("Adblock modal detected — dismissing now...");
+            dismissButton.click();
+        }
         playVideoIfPaused();
     }
 
@@ -78,12 +77,21 @@ function playVideoIfPaused() {
     if ((video.paused && video.currentTime <= observerTimeout || observerTimeout === 0) && !userInteractedBtn) {
         video.play();
         console.log("Video playback resumed");
-    } else if (video.currentTime > observerTimeout) {
-        if (modal) {
-            console.log("Late modal detected, removing now...");
-            modal.remove();
-        }
     }
+}
+
+function isVisible(el) {
+    if (!el) return false;
+
+    const style = getComputedStyle(el);
+
+    return (
+        el.offsetParent !== null && // display: none y detached del layout
+        el.offsetWidth > 0 &&
+        el.offsetHeight > 0 &&
+        style.visibility !== 'hidden' &&
+        style.opacity !== '0'
+    );
 }
 
 // Video Playback Event Management
@@ -155,14 +163,14 @@ function loadObserverTimeout() {
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         console.log('Tab is active again — reactivating observer if needed');
-        chrome.runtime.sendMessage({ type: 'wakeup' });
+        chrome.runtime.sendMessage({type: 'wakeup'});
         stopObserver();
         startObserver();
     }
 });
 
 document.addEventListener('click', () => {
-    chrome.runtime.sendMessage({ type: 'wakeup' });
+    chrome.runtime.sendMessage({type: 'wakeup'});
 })
 
 // Message Listener
@@ -181,4 +189,11 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 // Init
+injectBackdropStyle();
+injectBackdropOverrideStyle();
+
+injectDialogVisibilityHidden();
+injectSharePanelStyle();
+injectDismissButtonStyle();
+
 loadObserverTimeout();
