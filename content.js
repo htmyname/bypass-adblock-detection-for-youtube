@@ -1,4 +1,4 @@
-console.log('Observer initialized, waiting for YouTube adblock modal...');
+logger.log('Observer initialized, waiting for YouTube adblock modal...');
 
 let userInteractedBtn = false;
 let lastUrl = location.href;
@@ -15,13 +15,13 @@ const observer = new MutationObserver(removeAdblockModal);
 function startObserver() {
     observerActiveSince = Date.now();
     observer.observe(document.body, {childList: true, subtree: true});
-    console.log('Observer connected');
+    logger.log('Observer connected');
     addShareListener();
 }
 
 function stopObserver() {
     observer.disconnect();
-    console.log('Observer disconnected');
+    logger.log('Observer disconnected');
     removeShareListener();
     if (video) {
         document.removeEventListener('keydown', onKeydown);
@@ -45,7 +45,7 @@ function removeAdblockModal() {
 
     if (dismissButton) {
         if (isVisible(dismissButton)) {
-            console.log("Adblock modal detected — dismissing now...");
+            logger.log("Adblock modal detected — dismissing now...");
             dismissButton.click();
         }
         playVideoIfPaused();
@@ -54,17 +54,17 @@ function removeAdblockModal() {
     if (video && video.currentTime > observerTimeout && observerTimeout !== 0) {
         const liveBadge = document.querySelector('.ytp-live-badge');
         if (liveBadge && liveBadge.offsetParent !== null) {
-            console.log("Live detected — do nothing");
+            logger.log("Live detected — do nothing");
             if (!liveTimeout) {
                 liveTimeout = setTimeout(() => {
-                    console.log("Timeout in live — stopping observer");
+                    logger.log("Timeout in live — stopping observer");
                     stopObserver();
                     liveTimeout = null;
                 }, observerTimeout * 1000);
             }
         } else {
             if (Date.now() - observerActiveSince > observerTimeout * 1000) {
-                console.log(`Timeout ${observerTimeout}s — stopping observer`);
+                logger.log(`Timeout ${observerTimeout}s — stopping observer`);
                 stopObserver();
             }
         }
@@ -76,7 +76,7 @@ function playVideoIfPaused() {
 
     if ((video.paused && video.currentTime <= observerTimeout || observerTimeout === 0) && !userInteractedBtn) {
         video.play();
-        console.log("Video playback resumed");
+        logger.log("Video playback resumed");
     }
 }
 
@@ -98,7 +98,7 @@ function isVisible(el) {
 function playPauseHandler() {
     if (!video) return;
     if (video.paused) {
-        console.log('User manually paused the video');
+        logger.log('User manually paused the video');
         if (video.currentTime > observerTimeout && Date.now() - observerActiveSince > observerTimeout * 1000 && observerTimeout !== 0) {
             stopObserver();
         }
@@ -132,28 +132,28 @@ function addVideoEvent() {
 
 // URL Change Handling
 function onUrlChange() {
-    console.log('Checking URL change...');
+    logger.log('Checking URL change...');
     if (location.href !== lastUrl) {
-        console.log('URL changed from', lastUrl, 'to', location.href);
+        logger.log('URL changed from', lastUrl, 'to', location.href);
         lastUrl = location.href;
         userInteractedBtn = false;
         stopObserver();
         startObserver();
     } else {
-        console.log('URL unchanged.');
+        logger.log('URL unchanged.');
     }
 }
 
 function loadObserverTimeout() {
     chrome.storage.local.get(['observerTimeout'], (result) => {
-        console.log('localstorage:', result.observerTimeout)
+        logger.log('localstorage:', result.observerTimeout)
         if (result.observerTimeout >= 5 || result.observerTimeout <= 60 || result.observerTimeout === 0) {
             observerTimeout = result.observerTimeout;
-            console.log(`Timeout cargado: ${observerTimeout} s`);
+            logger.log(`Timeout cargado: ${observerTimeout} s`);
             startObserver();
         } else {
             observerTimeout = 15;
-            console.log(`Timeout cargado: ${observerTimeout} s`);
+            logger.log(`Timeout cargado: ${observerTimeout} s`);
             startObserver();
         }
     });
@@ -162,7 +162,7 @@ function loadObserverTimeout() {
 // Visibility Change Handling
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-        console.log('Tab is active again — reactivating observer if needed');
+        logger.log('Tab is active again — reactivating observer if needed');
         chrome.runtime.sendMessage({type: 'wakeup'});
         stopObserver();
         startObserver();
@@ -176,7 +176,7 @@ document.addEventListener('click', () => {
 // Message Listener
 chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'urlChanged') {
-        console.log('Content script: URL changed to', message.url);
+        logger.log('Content script: URL changed to', message.url);
         onUrlChange();
     }
 });
@@ -184,7 +184,7 @@ chrome.runtime.onMessage.addListener((message) => {
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.observerTimeout) {
         observerTimeout = changes.observerTimeout.newValue;
-        console.log(`Timeout actualizado a: ${observerTimeout} s`);
+        logger.log(`Timeout actualizado a: ${observerTimeout} s`);
     }
 });
 

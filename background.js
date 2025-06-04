@@ -1,3 +1,13 @@
+import './logger.js';
+
+logger.updateDebug();
+
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.debug) {
+        logger.log('Debug flag cambiado en background:', changes.debug.newValue);
+    }
+});
+
 chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
     console.log(details)
 

@@ -97,14 +97,16 @@ function initShareObserver() {
 }
 
 function startShareObserver() {
-    console.log('share observer start')
+    logger.log('share observer start')
     shareObserver.observe(modalParent, {attributes: true, attributeFilter: ['style']});
     shareObserverStarted = true;
 }
 
 function stopShareObserver() {
-    console.log('share observer stop')
-    shareObserver.disconnect()
+    if (shareObserver !== null && shareObserver !== undefined){
+        logger.log('share observer stop')
+        shareObserver.disconnect()
+    }
     shareObserverStarted = false;
 }
 
