@@ -163,16 +163,18 @@ function loadObserverTimeout() {
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         logger.log('Tab is active again — reactivating observer if needed');
-        if (chrome.runtime?.id) {
+
+        if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
             chrome.runtime.sendMessage({type: 'wakeup'});
         }
+
         stopObserver();
         startObserver();
     }
 });
 
 document.addEventListener('click', () => {
-    if (chrome.runtime?.id) {
+    if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
         chrome.runtime.sendMessage({type: 'wakeup'});
     }
 })
