@@ -1,4 +1,4 @@
-# YouTube Popup Remover Extension
+# Bypass AdBlock Detection for YouTube Extension
 
 A lightweight web extension that automatically detects and bypasses YouTube's adblock detection modals, resumes video playback if paused, and intelligently handles live streams and video playback events.
 
@@ -38,4 +38,4 @@ All previous commits and code history are retroactively covered by this license 
 
 For issues, feature requests, or contributions, please open an issue or submit a pull request.
 
-**Repository:** [YouTube Popup Remover](https://github.com/htmyname/youtube-popup-remover)
+**Repository:** [Bypass AdBlock Detection for YouTube](https://github.com/htmyname/bypass-adblock-detection-for-youtube)
