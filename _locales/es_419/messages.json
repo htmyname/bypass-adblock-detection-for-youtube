@@ -3,7 +3,7 @@
 		"message": "Bypass AdBlock Detection for YouTube — videos sin interrupciones"
 	},
 	"extensionDescription": {
-		"message": "Cierra automáticamente el mensaje de 'Los bloqueadores de anuncios no se permiten en YouTube'para que los videos se reproduzcan sin interrupciones mientras usas un bloqueador de anuncios."
+		"message": "Cierra automáticamente el mensaje de 'Los bloqueadores de anuncios no se permiten en YouTube'para que los videos se reproduzcan sin interrupciones."
 	},
 	"noRangeValueMsg": {
 		"message": "Introduce un valor entre 5 y 60 segundos"
