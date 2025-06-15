@@ -1,9 +1,3 @@
-let shareBtn = undefined;
-let modalParent = undefined;
-let shareObserver = null;
-let shareObserverStarted = false;
-
-
 function injectBackdropStyle() {
     if (document.getElementById('backdrop-style-yt-bypass')) return;
     const style = document.createElement('style');
@@ -21,7 +15,7 @@ function injectBackdropOverrideStyle() {
     const style = document.createElement('style');
     style.id = 'backdrop-override-style-yt-bypass';
     style.textContent = `
-    .custom-opacity-important {
+     tp-yt-iron-overlay-backdrop.opened {
         opacity: 0.6 !important;
     }
     `;
@@ -30,26 +24,11 @@ function injectBackdropOverrideStyle() {
 
 function injectDialogVisibilityHidden() {
     if (document.getElementById('dialog-visibility-style-yt-bypass')) return;
-
     const style = document.createElement('style');
     style.id = 'dialog-visibility-style-yt-bypass';
     style.textContent = `
-    tp-yt-paper-dialog.style-scope.ytd-popup-container {
+    ytd-enforcement-message-view-model.style-scope.ytd-popup-container {
       visibility: hidden !important;
-    }
-  `;
-    document.head.appendChild(style);
-}
-
-function injectSharePanelStyle() {
-    if (document.getElementById('share-panel-style-yt-bypass')) return;
-
-    const style = document.createElement('style');
-    style.id = 'share-panel-style-yt-bypass';
-    style.textContent = `
-    ytd-unified-share-panel-renderer.style-scope.ytd-popup-container {
-      visibility: visible !important;
-      background-color: white !important;
     }
   `;
     document.head.appendChild(style);
@@ -69,59 +48,33 @@ function injectDismissButtonStyle() {
     document.head.appendChild(style);
 }
 
-function initShareObserver() {
-    modalParent = document.querySelector('tp-yt-paper-dialog.style-scope.ytd-popup-container');
-    if (modalParent) {
-        shareObserver = new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
-                if (mutation.attributeName === 'style') {
-                    const style = modalParent.getAttribute('style') || '';
+function actionsListenerHandler(e) {
+    let share = document.querySelector('#top-level-buttons-computed > yt-button-view-model > button-view-model > button')
+    let videoMenu = document.querySelector('#menu > ytd-menu-renderer > yt-button-shape#button-shape > button');
+    let videoListMenu = document.querySelector('#button > yt-icon.style-scope.ytd-menu-renderer');
+    let join = document.querySelector('#sponsor-button > timed-animation-button-renderer > yt-smartimation > div > ytd-button-renderer > yt-button-shape > button');
+    let unSubscribe = document.querySelector('#notification-preference-button > ytd-subscription-notification-toggle-button-renderer-next > yt-button-shape > button');
+    let leftMenu = document.querySelector('yt-icon-button#guide-button > button#button');
 
-                    const isVisible = !style.includes('display: none');
-                    const backdrop = document.querySelector('tp-yt-iron-overlay-backdrop');
-
-                    if (backdrop) {
-                        if (isVisible) {
-                            backdrop.classList.add('custom-opacity-important');
-                        } else {
-                            backdrop.classList.remove('custom-opacity-important');
-                        }
-                    }
-                }
-            });
-        });
-        if (!shareObserverStarted){
-            startShareObserver();
-        }
+    if (share || videoMenu || videoListMenu || join || unSubscribe || leftMenu) {
+        injectBackdropOverrideStyle();
+    }else {
+        logger.log('Action button not found');
     }
 }
 
-function startShareObserver() {
-    logger.log('share observer start')
-    shareObserver.observe(modalParent, {attributes: true, attributeFilter: ['style']});
-    shareObserverStarted = true;
+function addActionsListener() {
+    document.addEventListener('click', actionsListenerHandler);
 }
 
-function stopShareObserver() {
-    if (shareObserver !== null && shareObserver !== undefined){
-        logger.log('share observer stop')
-        shareObserver.disconnect()
-    }
-    shareObserverStarted = false;
+function removeActionsListener() {
+    document.removeEventListener('click', actionsListenerHandler);
+    injectBackdropOverrideStyle();
 }
 
-function shareListenerHandler(e) {
-    shareBtn = e.target.closest('button.yt-spec-button-shape-next');
-    if (shareBtn) {
-        initShareObserver();
-    }
-}
+//Init Styles
+injectBackdropStyle();
+injectBackdropOverrideStyle();
 
-function addShareListener() {
-    document.addEventListener('click', shareListenerHandler);
-}
-
-function removeShareListener() {
-    document.removeEventListener('click', shareListenerHandler);
-    stopShareObserver();
-}
+injectDialogVisibilityHidden();
+injectDismissButtonStyle();

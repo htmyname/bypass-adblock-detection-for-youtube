@@ -3,7 +3,7 @@
 		"message": "Bypass AdBlock Detection for YouTube — keep videos playing"
 	},
 	"extensionDescription": {
-		"message": "Automatically dismisses the 'Ad Blockers are Not Allowed on YouTube' message to keep videos playing smoothly."
+		"message": "Automatically dismisses the 'Ad Blockers are Not Allowed on YouTube' message"
 	},
 	"noRangeValueMsg": {
 		"message": "Enter a value between 5 and 60 seconds"

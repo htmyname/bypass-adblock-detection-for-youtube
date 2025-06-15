@@ -9,9 +9,9 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
-    console.log(details)
+    logger.log(details)
 
-    if (!details.url.includes("youtube.com/watch")) return;
+    if (!details.url.includes("youtube.com")) return;
 
     // Obtiene la pestaña activa en la ventana donde ocurrió el cambio
     const tabs = await chrome.tabs.query({active: true, windowId: details.windowId});
@@ -19,13 +19,13 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
 
     const activeTab = tabs[0];
     if (activeTab.id === details.tabId) {
-        console.log('Background: URL changed on active tab', details.url);
-        chrome.tabs.sendMessage(details.tabId, {
+        logger.log('Background: URL changed on active tab', details.url);
+        await chrome.tabs.sendMessage(details.tabId, {
             type: 'urlChanged',
             url: details.url
         });
     } else {
-        console.log('Background: URL changed on inactive tab, no message sent');
+        logger.log('Background: URL changed on inactive tab, no message sent');
     }
 }, {
     url: [{hostContains: 'youtube.com'}]
@@ -33,7 +33,7 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(async (details) => {
 
 chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'wakeup') {
-        console.log('Background wakeup');
+        logger.log('Background wakeup');
     }
 });
 

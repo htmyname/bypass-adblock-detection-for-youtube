@@ -20,6 +20,10 @@ chrome.storage.onChanged.addListener((changes, area) => {
 function log(...args) {
     if (DEBUG) {
         console.log(...args);
+        let stack = new Error().stack;
+        let callerLine = stack.split("\n")[2];
+        console.log('↪', callerLine.trim());
+        console.log(' ')
     }
 }
 

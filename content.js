@@ -16,13 +16,13 @@ function startObserver() {
     observerActiveSince = Date.now();
     observer.observe(document.body, {childList: true, subtree: true});
     logger.log('Observer connected');
-    addShareListener();
+    addActionsListener();
 }
 
 function stopObserver() {
     observer.disconnect();
     logger.log('Observer disconnected');
-    removeShareListener();
+    removeActionsListener();
     if (video) {
         document.removeEventListener('keydown', onKeydown);
         video.removeEventListener('click', onVideoClick);
@@ -34,7 +34,22 @@ function stopObserver() {
 
 // Modal Handling y Video Control
 function removeAdblockModal() {
-    const dismissButton = document.querySelector('#dismiss-button button');
+    let adBlockModal = document.querySelector('ytd-enforcement-message-view-model.style-scope.ytd-popup-container');
+    let btnEl = undefined;
+    let dismissButton = undefined;
+
+    if (adBlockModal) {
+        let backdropOverrideStyle = document.getElementById('backdrop-override-style-yt-bypass');
+        if (backdropOverrideStyle) {
+            backdropOverrideStyle.remove();
+        }
+        btnEl = adBlockModal.querySelector('button');
+        if (btnEl) {
+            dismissButton = btnEl.closest('#dismiss-button');
+        }
+    }
+
+
     video = document.querySelector('.video-stream.html5-main-video');
     playBtn = document.querySelector('.ytp-play-button.ytp-button');
 
@@ -47,6 +62,7 @@ function removeAdblockModal() {
         if (isVisible(dismissButton)) {
             logger.log("Adblock modal detected — dismissing now...");
             dismissButton.click();
+            adBlockModal.remove();
         }
         playVideoIfPaused();
     }
@@ -195,11 +211,4 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 // Init
-injectBackdropStyle();
-injectBackdropOverrideStyle();
-
-injectDialogVisibilityHidden();
-injectSharePanelStyle();
-injectDismissButtonStyle();
-
 loadObserverTimeout();
