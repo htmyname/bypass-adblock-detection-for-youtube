@@ -49,19 +49,38 @@ function injectDismissButtonStyle() {
 }
 
 function actionsListenerHandler(e) {
-    let share = document.querySelector('#top-level-buttons-computed > yt-button-view-model > button-view-model > button')
-    let videoMenu = document.querySelector('#menu > ytd-menu-renderer > yt-button-shape#button-shape > button');
-    let videoListMenu = document.querySelector('#button > yt-icon.style-scope.ytd-menu-renderer');
-    let join = document.querySelector('#sponsor-button > timed-animation-button-renderer > yt-smartimation > div > ytd-button-renderer > yt-button-shape > button');
-    let unSubscribe = document.querySelector('#notification-preference-button > ytd-subscription-notification-toggle-button-renderer-next > yt-button-shape > button');
-    let leftMenu = document.querySelector('yt-icon-button#guide-button > button#button');
+    const clicked = e.target.closest('button');
+    if (!clicked) {
+        logger.log('No button found on click target');
+        return;
+    }
 
-    if (share || videoMenu || videoListMenu || join || unSubscribe || leftMenu) {
+    const shareBtn = document.querySelector('#top-level-buttons-computed > yt-button-view-model > button-view-model > button');
+    const videoMenuBtn = document.querySelector('#menu > ytd-menu-renderer > yt-button-shape#button-shape > button');
+    const videoListMenuIcon = document.querySelector('#button > yt-icon.style-scope.ytd-menu-renderer');
+    const joinBtn = document.querySelector('#sponsor-button > timed-animation-button-renderer > yt-smartimation > div > ytd-button-renderer > yt-button-shape > button');
+    const unSubscribeBtn = document.querySelector('#notification-preference-button > ytd-subscription-notification-toggle-button-renderer-next > yt-button-shape > button');
+    const leftMenuBtn = document.querySelector('yt-icon-button#guide-button > button#button');
+
+    const elementsToMatch = [
+        shareBtn,
+        videoMenuBtn,
+        joinBtn,
+        unSubscribeBtn,
+        leftMenuBtn,
+        videoListMenuIcon?.parentElement || null,
+    ];
+
+    const matched = elementsToMatch.some(elem => elem === clicked);
+
+    if (matched) {
+        logger.log('Clicked button:', clicked);
         injectBackdropOverrideStyle();
-    }else {
+    } else {
         logger.log('Action button not found');
     }
 }
+
 
 function addActionsListener() {
     document.addEventListener('click', actionsListenerHandler);
