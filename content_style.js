@@ -94,49 +94,6 @@ function isVisible(el) {
     );
 }
 
-function getVisibleModal() {
-    const selectors = [
-        'tp-yt-paper-dialog.style-scope.ytd-popup-container',
-        'yt-confirm-dialog-renderer',
-        'ytd-unified-share-panel-renderer',
-        '#contentContainer',
-        'ytd-sponsorships-offer-renderer',
-        'ytd-offline-promo-renderer',
-    ];
-
-    const modals = document.querySelectorAll(selectors.join(','));
-    const visibleModal = Array.from(modals).find(isVisible) || null;
-
-    if (visibleModal) {
-        logger.log('Modal visible detectado:', visibleModal);
-    }
-
-    return visibleModal;
-}
-
-
-function removeBackdrop(backdrop) {
-    if (backdrop && backdrop.classList.contains('opened')) {
-        backdrop.classList.remove('opened');
-        backdrop.removeAttribute('opened');
-        backdrop.style.zIndex = '2199';
-        backdrop.remove();
-        logger.log('Backdrop removido');
-    }
-}
-
-document.body.addEventListener('click', (e) => {
-    const backdrop = e.target.closest('tp-yt-iron-overlay-backdrop.opened');
-    if (!backdrop) return;
-
-    const modal = getVisibleModal();
-    if (!modal) {
-        removeBackdrop(backdrop);
-    } else {
-        logger.log('Modal visible detectado, no se remueve backdrop');
-    }
-});
-
 // Init Styles
 injectBackdropStyle();
 injectBackdropOverrideStyle();

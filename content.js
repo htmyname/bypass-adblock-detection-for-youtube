@@ -35,7 +35,6 @@ function stopObserver() {
 // Modal Handling y Video Control
 function removeAdblockModal() {
     const adBlockModal = document.querySelector('ytd-enforcement-message-view-model.style-scope.ytd-popup-container');
-    let backdrop = document.querySelector('tp-yt-iron-overlay-backdrop.opened');
     let dismissButton = null;
     video = document.querySelector('.video-stream.html5-main-video');
     playBtn = document.querySelector('.ytp-play-button.ytp-button');
@@ -60,13 +59,10 @@ function removeAdblockModal() {
     if (dismissButton) {
         if (isVisible(dismissButton)) {
             logger.log("Adblock modal detected — dismissing now...");
-            removeBackdrop(backdrop);
             dismissButton.click();
             //adBlockModal.remove();
-            backdrop = document.querySelector('tp-yt-iron-overlay-backdrop.opened');
-            removeBackdrop(backdrop);
+            playVideoIfPaused();
         }
-        playVideoIfPaused();
     }
 
     if (video && video.currentTime > observerTimeout && observerTimeout !== 0) {
