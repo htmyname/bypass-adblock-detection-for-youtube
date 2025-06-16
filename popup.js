@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Cargar valor actual
     chrome.storage.local.get(['observerTimeout'], (result) => {
-        if (result.observerTimeout >= 0 || result.observerTimeout <= 60) {
+        if (result.observerTimeout >= 0 && result.observerTimeout <= 60) {
             input.value = result.observerTimeout;
         }
     });

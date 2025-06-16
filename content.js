@@ -2,8 +2,8 @@ logger.log('Observer initialized, waiting for YouTube adblock modal...');
 
 let userInteractedBtn = false;
 let lastUrl = location.href;
-let video = undefined;
-let playBtn = undefined;
+let video = null;
+let playBtn = null;
 let liveTimeout = null;
 let observerActiveSince;
 let observerTimeout = 15;
@@ -34,24 +34,23 @@ function stopObserver() {
 
 // Modal Handling y Video Control
 function removeAdblockModal() {
-    let adBlockModal = document.querySelector('ytd-enforcement-message-view-model.style-scope.ytd-popup-container');
-    let btnEl = undefined;
-    let dismissButton = undefined;
+    const adBlockModal = document.querySelector('ytd-enforcement-message-view-model.style-scope.ytd-popup-container');
+    let backdrop = document.querySelector('tp-yt-iron-overlay-backdrop.opened');
+    let dismissButton = null;
+    video = document.querySelector('.video-stream.html5-main-video');
+    playBtn = document.querySelector('.ytp-play-button.ytp-button');
 
     if (adBlockModal) {
-        let backdropOverrideStyle = document.getElementById('backdrop-override-style-yt-bypass');
+        const backdropOverrideStyle = document.getElementById('backdrop-override-style-yt-bypass');
         if (backdropOverrideStyle) {
             backdropOverrideStyle.remove();
         }
-        btnEl = adBlockModal.querySelector('button');
+
+        const btnEl = adBlockModal.querySelector('button');
         if (btnEl) {
             dismissButton = btnEl.closest('#dismiss-button');
         }
     }
-
-
-    video = document.querySelector('.video-stream.html5-main-video');
-    playBtn = document.querySelector('.ytp-play-button.ytp-button');
 
     if (video && playBtn && !videoListenerAdded) {
         videoListenerAdded = true;
@@ -61,8 +60,11 @@ function removeAdblockModal() {
     if (dismissButton) {
         if (isVisible(dismissButton)) {
             logger.log("Adblock modal detected — dismissing now...");
+            removeBackdrop(backdrop);
             dismissButton.click();
-            adBlockModal.remove();
+            //adBlockModal.remove();
+            backdrop = document.querySelector('tp-yt-iron-overlay-backdrop.opened');
+            removeBackdrop(backdrop);
         }
         playVideoIfPaused();
     }
@@ -78,36 +80,19 @@ function removeAdblockModal() {
                     liveTimeout = null;
                 }, observerTimeout * 1000);
             }
-        } else {
-            if (Date.now() - observerActiveSince > observerTimeout * 1000) {
-                logger.log(`Timeout ${observerTimeout}s — stopping observer`);
-                stopObserver();
-            }
+        } else if (Date.now() - observerActiveSince > observerTimeout * 1000) {
+            logger.log(`Timeout ${observerTimeout}s — stopping observer`);
+            stopObserver();
         }
     }
 }
 
 function playVideoIfPaused() {
-    if (!video) return;
-
-    if ((video.paused && video.currentTime <= observerTimeout || observerTimeout === 0) && !userInteractedBtn) {
+    if (video && video.paused && !userInteractedBtn &&
+        (video.currentTime <= observerTimeout || observerTimeout === 0 || Date.now() - observerActiveSince < observerTimeout * 1000)) {
         video.play();
         logger.log("Video playback resumed");
     }
-}
-
-function isVisible(el) {
-    if (!el) return false;
-
-    const style = getComputedStyle(el);
-
-    return (
-        el.offsetParent !== null && // display: none y detached del layout
-        el.offsetWidth > 0 &&
-        el.offsetHeight > 0 &&
-        style.visibility !== 'hidden' &&
-        style.opacity !== '0'
-    );
 }
 
 // Video Playback Event Management
@@ -139,11 +124,9 @@ function onPlayBtnClick() {
 }
 
 function addVideoEvent() {
-    if (video) {
-        document.addEventListener('keydown', onKeydown);
-        video.addEventListener('click', onVideoClick);
-        playBtn.addEventListener('click', onPlayBtnClick);
-    }
+    document.addEventListener('keydown', onKeydown);
+    video.addEventListener('click', onVideoClick);
+    playBtn.addEventListener('click', onPlayBtnClick);
 }
 
 // URL Change Handling
@@ -162,44 +145,57 @@ function onUrlChange() {
 
 function loadObserverTimeout() {
     chrome.storage.local.get(['observerTimeout'], (result) => {
-        logger.log('localstorage:', result.observerTimeout)
-        if (result.observerTimeout >= 5 || result.observerTimeout <= 60 || result.observerTimeout === 0) {
+        logger.log('localstorage:', result.observerTimeout);
+        if ((result.observerTimeout >= 5 && result.observerTimeout <= 60) || result.observerTimeout === 0) {
             observerTimeout = result.observerTimeout;
-            logger.log(`Timeout cargado: ${observerTimeout} s`);
-            startObserver();
         } else {
             observerTimeout = 15;
-            logger.log(`Timeout cargado: ${observerTimeout} s`);
-            startObserver();
         }
+        logger.log(`Timeout cargado: ${observerTimeout} s`);
+        startObserver();
     });
 }
 
 // Visibility Change Handling
-document.addEventListener('visibilitychange', () => {
+function sendMessageAsync(message) {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(message, (response) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(response);
+            }
+        });
+    });
+}
+
+document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
         logger.log('Tab is active again — reactivating observer if needed');
-
         if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
-            chrome.runtime.sendMessage({type: 'wakeup'});
+            try {
+                await sendMessageAsync({type: 'wakeup'});
+                stopObserver();
+                startObserver();
+            } catch (e) {
+                logger.log('Error sending wakeup message:', e);
+            }
         }
-
-        stopObserver();
-        startObserver();
     }
 });
 
-document.addEventListener('click', () => {
+document.addEventListener('click', async () => {
     if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
-        chrome.runtime.sendMessage({type: 'wakeup'});
+        await sendMessageAsync({type: 'wakeup'});
     }
-})
+});
 
 // Message Listener
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'urlChanged') {
         logger.log('Content script: URL changed to', message.url);
         onUrlChange();
+        sendResponse({ status: 'ok' });
     }
 });
 

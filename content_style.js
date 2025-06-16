@@ -1,86 +1,77 @@
-function injectBackdropStyle() {
-    if (document.getElementById('backdrop-style-yt-bypass')) return;
+function injectStyle(id, css) {
+    if (document.getElementById(id)) return;
     const style = document.createElement('style');
-    style.id = 'backdrop-style-yt-bypass';
-    style.textContent = `
+    style.id = id;
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+function injectBackdropStyle() {
+    injectStyle('backdrop-style-yt-bypass', `
     tp-yt-iron-overlay-backdrop.opened {
       opacity: 0;
     }
-  `;
-    document.head.appendChild(style);
+  `);
 }
 
 function injectBackdropOverrideStyle() {
-    if (document.getElementById('backdrop-override-style-yt-bypass')) return;
-    const style = document.createElement('style');
-    style.id = 'backdrop-override-style-yt-bypass';
-    style.textContent = `
-     tp-yt-iron-overlay-backdrop.opened {
-        opacity: 0.6 !important;
+    injectStyle('backdrop-override-style-yt-bypass', `
+    tp-yt-iron-overlay-backdrop.opened {
+      opacity: 0.6 !important;
     }
-    `;
-    document.head.appendChild(style);
+  `);
 }
 
 function injectDialogVisibilityHidden() {
-    if (document.getElementById('dialog-visibility-style-yt-bypass')) return;
-    const style = document.createElement('style');
-    style.id = 'dialog-visibility-style-yt-bypass';
-    style.textContent = `
+    injectStyle('dialog-visibility-style-yt-bypass', `
     ytd-enforcement-message-view-model.style-scope.ytd-popup-container {
       visibility: hidden !important;
     }
-  `;
-    document.head.appendChild(style);
+  `);
 }
 
 function injectDismissButtonStyle() {
-    if (document.getElementById('dismiss-button-style-yt-bypass')) return;
-
-    const style = document.createElement('style');
-    style.id = 'dismiss-button-style-yt-bypass';
-    style.textContent = `
+    injectStyle('dismiss-button-style-yt-bypass', `
     yt-button-view-model#dismiss-button {
       visibility: visible !important;
       opacity: 0.01 !important;
     }
-  `;
-    document.head.appendChild(style);
+  `);
 }
 
 function actionsListenerHandler(e) {
-    const clicked = e.target.closest('button');
+    if (!e.target) return;
+
+    let clicked = e.target.closest('button')
+        || e.target.closest('yt-icon-button')
+        || e.target.closest('div[style*="fill: currentcolor;"][style*="display: block;"]');
+
     if (!clicked) {
-        logger.log('No button found on click target');
         return;
     }
 
-    const shareBtn = document.querySelector('#top-level-buttons-computed > yt-button-view-model > button-view-model > button');
-    const videoMenuBtn = document.querySelector('#menu > ytd-menu-renderer > yt-button-shape#button-shape > button');
-    const videoListMenuIcon = document.querySelector('#button > yt-icon.style-scope.ytd-menu-renderer');
-    const joinBtn = document.querySelector('#sponsor-button > timed-animation-button-renderer > yt-smartimation > div > ytd-button-renderer > yt-button-shape > button');
-    const unSubscribeBtn = document.querySelector('#notification-preference-button > ytd-subscription-notification-toggle-button-renderer-next > yt-button-shape > button');
-    const leftMenuBtn = document.querySelector('yt-icon-button#guide-button > button#button');
-
-    const elementsToMatch = [
-        shareBtn,
-        videoMenuBtn,
-        joinBtn,
-        unSubscribeBtn,
-        leftMenuBtn,
-        videoListMenuIcon?.parentElement || null,
+    const buttonSelectors = [
+        '#top-level-buttons-computed > yt-button-view-model > button-view-model > button',
+        '#menu > ytd-menu-renderer > yt-button-shape#button-shape > button',
+        'yt-icon-button > button#button.style-scope.yt-icon-button',
+        '#sponsor-button > timed-animation-button-renderer > yt-smartimation > div > ytd-button-renderer > yt-button-shape > button',
+        '#notification-preference-button > ytd-subscription-notification-toggle-button-renderer-next > yt-button-shape > button',
+        'yt-icon-button#guide-button > button#button',
+        'yt-icon-button',
+        'yt-icon#guide-icon > span > div'
     ];
 
-    const matched = elementsToMatch.some(elem => elem === clicked);
+    const matched = buttonSelectors.some(selector => {
+        const buttons = document.querySelectorAll(selector);
+        return Array.from(buttons).some(btn => btn.isEqualNode(clicked));
+    });
 
     if (matched) {
-        logger.log('Clicked button:', clicked);
         injectBackdropOverrideStyle();
     } else {
         logger.log('Action button not found');
     }
 }
-
 
 function addActionsListener() {
     document.addEventListener('click', actionsListenerHandler);
@@ -88,12 +79,66 @@ function addActionsListener() {
 
 function removeActionsListener() {
     document.removeEventListener('click', actionsListenerHandler);
-    injectBackdropOverrideStyle();
+    injectBackdropOverrideStyle(); // redundancia controlada
 }
 
-//Init Styles
+function isVisible(el) {
+    if (!el) return false;
+    const style = getComputedStyle(el);
+    return (
+        el.offsetParent !== null &&
+        el.offsetWidth > 0 &&
+        el.offsetHeight > 0 &&
+        style.visibility !== 'hidden' &&
+        style.opacity !== '0'
+    );
+}
+
+function getVisibleModal() {
+    const selectors = [
+        'tp-yt-paper-dialog.style-scope.ytd-popup-container',
+        'yt-confirm-dialog-renderer',
+        'ytd-unified-share-panel-renderer',
+        '#contentContainer',
+        'ytd-sponsorships-offer-renderer',
+        'ytd-offline-promo-renderer',
+    ];
+
+    const modals = document.querySelectorAll(selectors.join(','));
+    const visibleModal = Array.from(modals).find(isVisible) || null;
+
+    if (visibleModal) {
+        logger.log('Modal visible detectado:', visibleModal);
+    }
+
+    return visibleModal;
+}
+
+
+function removeBackdrop(backdrop) {
+    if (backdrop && backdrop.classList.contains('opened')) {
+        backdrop.classList.remove('opened');
+        backdrop.removeAttribute('opened');
+        backdrop.style.zIndex = '2199';
+        backdrop.remove();
+        logger.log('Backdrop removido');
+    }
+}
+
+document.body.addEventListener('click', (e) => {
+    const backdrop = e.target.closest('tp-yt-iron-overlay-backdrop.opened');
+    if (!backdrop) return;
+
+    const modal = getVisibleModal();
+    if (!modal) {
+        removeBackdrop(backdrop);
+    } else {
+        logger.log('Modal visible detectado, no se remueve backdrop');
+    }
+});
+
+// Init Styles
 injectBackdropStyle();
 injectBackdropOverrideStyle();
-
 injectDialogVisibilityHidden();
 injectDismissButtonStyle();
