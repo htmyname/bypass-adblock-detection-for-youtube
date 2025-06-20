@@ -5,6 +5,7 @@ let lastUrl = location.href;
 let video = null;
 let playBtn = null;
 let liveTimeout = null;
+let isObserverActive = false;
 let observerActiveSince;
 let observerTimeout = 15;
 let videoListenerAdded = false;
@@ -14,14 +15,21 @@ const observer = new MutationObserver(removeAdblockModal);
 // Observer Management
 function startObserver() {
     observerActiveSince = Date.now();
+    isObserverActive = true;
     observer.observe(document.body, {childList: true, subtree: true});
-    logger.log('Observer connected');
+    chrome.storage.local.set({isObserverActive: true}).then(() => {
+        logger.log('Observer connected');
+    });
     addActionsListener();
 }
 
 function stopObserver() {
     observer.disconnect();
-    logger.log('Observer disconnected');
+    isObserverActive = false;
+    chrome.storage.local.set({isObserverActive: false}).then(() => {
+        logger.log('Observer disconnected');
+    });
+
     removeActionsListener();
     if (video) {
         document.removeEventListener('keydown', onKeydown);
@@ -35,34 +43,30 @@ function stopObserver() {
 // Modal Handling y Video Control
 function removeAdblockModal() {
     const adBlockModal = document.querySelector('ytd-enforcement-message-view-model.style-scope.ytd-popup-container');
+    const backdropOverrideStyle = document.getElementById('backdrop-override-style-yt-bypass');
     let dismissButton = null;
-    video = document.querySelector('.video-stream.html5-main-video');
+    video = document.querySelector('.html5-video-container > .video-stream.html5-main-video');
     playBtn = document.querySelector('.ytp-play-button.ytp-button');
 
     if (adBlockModal) {
-        const backdropOverrideStyle = document.getElementById('backdrop-override-style-yt-bypass');
-        if (backdropOverrideStyle) {
-            backdropOverrideStyle.remove();
-        }
+        dismissButton = btnEl.closest('#dismiss-button');
+    }
 
-        const btnEl = adBlockModal.querySelector('button');
-        if (btnEl) {
-            dismissButton = btnEl.closest('#dismiss-button');
+    if (dismissButton) {
+        if (isVisible(dismissButton)) {
+            logger.log("Adblock modal detected — dismissing now...");
+            if (backdropOverrideStyle) {
+                backdropOverrideStyle.remove();
+            }
+            dismissButton.click();
+            //adBlockModal.remove();
+            playVideoIfPaused();
         }
     }
 
     if (video && playBtn && !videoListenerAdded) {
         videoListenerAdded = true;
         addVideoEvent();
-    }
-
-    if (dismissButton) {
-        if (isVisible(dismissButton)) {
-            logger.log("Adblock modal detected — dismissing now...");
-            dismissButton.click();
-            //adBlockModal.remove();
-            playVideoIfPaused();
-        }
     }
 
     if (video && video.currentTime > observerTimeout && observerTimeout !== 0) {
@@ -165,10 +169,25 @@ function sendMessageAsync(message) {
     });
 }
 
+function getStorageValue(key) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(key, (result) => {
+            if (chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError);
+            }
+            resolve(result[key]);
+        });
+    });
+}
+
+
 document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
         logger.log('Tab is active again — reactivating observer if needed');
-        if (typeof chrome !== 'undefined' && chrome.runtime?.id) {
+
+        isObserverActive = await getStorageValue('isObserverActive');
+
+        if (typeof chrome !== 'undefined' && chrome.runtime?.id && isObserverActive === false) {
             try {
                 await sendMessageAsync({type: 'wakeup'});
                 stopObserver();
@@ -191,7 +210,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'urlChanged') {
         logger.log('Content script: URL changed to', message.url);
         onUrlChange();
-        sendResponse({ status: 'ok' });
+        sendResponse({status: 'ok'});
     }
 });
 
