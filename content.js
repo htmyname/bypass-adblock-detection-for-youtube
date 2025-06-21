@@ -17,19 +17,14 @@ function startObserver() {
     observerActiveSince = Date.now();
     isObserverActive = true;
     observer.observe(document.body, {childList: true, subtree: true});
-    chrome.storage.local.set({isObserverActive: true}).then(() => {
-        logger.log('Observer connected');
-    });
+    logger.log('Observer connected');
     addActionsListener();
 }
 
 function stopObserver() {
     observer.disconnect();
     isObserverActive = false;
-    chrome.storage.local.set({isObserverActive: false}).then(() => {
-        logger.log('Observer disconnected');
-    });
-
+    logger.log('Observer disconnected');
     removeActionsListener();
     if (video) {
         document.removeEventListener('keydown', onKeydown);
@@ -49,7 +44,7 @@ function removeAdblockModal() {
     playBtn = document.querySelector('.ytp-play-button.ytp-button');
 
     if (adBlockModal) {
-        dismissButton = btnEl.closest('#dismiss-button');
+        dismissButton = adBlockModal.querySelector('#dismiss-button');
     }
 
     if (dismissButton) {
@@ -169,23 +164,10 @@ function sendMessageAsync(message) {
     });
 }
 
-function getStorageValue(key) {
-    return new Promise((resolve, reject) => {
-        chrome.storage.local.get(key, (result) => {
-            if (chrome.runtime.lastError) {
-                return reject(chrome.runtime.lastError);
-            }
-            resolve(result[key]);
-        });
-    });
-}
-
 
 document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
         logger.log('Tab is active again — reactivating observer if needed');
-
-        isObserverActive = await getStorageValue('isObserverActive');
 
         if (typeof chrome !== 'undefined' && chrome.runtime?.id && isObserverActive === false) {
             try {
