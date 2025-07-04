@@ -49,10 +49,16 @@ function removeAdblockModal() {
 
     if (dismissButton) {
         if (isVisible(dismissButton)) {
+            const parent = adBlockModal.parentElement;
+            if (!parent.classList.contains('adblock-modal-parent-yt-bypass')) {
+                parent.classList.add('adblock-modal-parent-yt-bypass');
+            }
+
             logger.log("Adblock modal detected — dismissing now...");
             if (backdropOverrideStyle) {
                 backdropOverrideStyle.remove();
             }
+            dismissButton.style.setProperty('pointer-events', 'auto', 'important');
             dismissButton.click();
             //adBlockModal.remove();
             playVideoIfPaused();

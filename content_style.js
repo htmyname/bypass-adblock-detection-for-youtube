@@ -9,7 +9,7 @@ function injectStyle(id, css) {
 function injectBackdropStyle() {
     injectStyle('backdrop-style-yt-bypass', `
     tp-yt-iron-overlay-backdrop.opened {
-      opacity: 0;
+      opacity: 0 !important;
     }
   `);
 }
@@ -29,6 +29,15 @@ function injectDialogVisibilityHidden() {
     }
   `);
 }
+
+function injectParentDialogVisibilityHidden() {
+    injectStyle('parent-style-yt-bypass', `
+    .adblock-modal-parent-yt-bypass {
+        opacity: 0 !important;
+    }
+    `);
+}
+
 
 function injectDismissButtonStyle() {
     injectStyle('dismiss-button-style-yt-bypass', `
@@ -98,4 +107,5 @@ function isVisible(el) {
 injectBackdropStyle();
 injectBackdropOverrideStyle();
 injectDialogVisibilityHidden();
+injectParentDialogVisibilityHidden();
 injectDismissButtonStyle();
