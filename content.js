@@ -9,6 +9,7 @@ let isObserverActive = false;
 let observerActiveSince;
 let observerTimeout = 15;
 let videoListenerAdded = false;
+let parentModal = null;
 
 const observer = new MutationObserver(removeAdblockModal);
 
@@ -45,21 +46,23 @@ function removeAdblockModal() {
 
     if (adBlockModal) {
         dismissButton = adBlockModal.querySelector('#dismiss-button');
+        parentModal = adBlockModal.parentElement;
+        if (parentModal && !parentModal.classList.contains('adblock-modal-parent-yt-bypass')) {
+            parentModal.classList.add('adblock-modal-parent-yt-bypass');
+        }
     }
 
     if (dismissButton) {
         if (isVisible(dismissButton)) {
-            const parent = adBlockModal.parentElement;
-            if (!parent.classList.contains('adblock-modal-parent-yt-bypass')) {
-                parent.classList.add('adblock-modal-parent-yt-bypass');
-            }
-
             logger.log("Adblock modal detected — dismissing now...");
             if (backdropOverrideStyle) {
                 backdropOverrideStyle.remove();
             }
             dismissButton.style.setProperty('pointer-events', 'auto', 'important');
             dismissButton.click();
+            if (parentModal && parentModal.classList.contains('adblock-modal-parent-yt-bypass')) {
+                parentModal.classList.remove('adblock-modal-parent-yt-bypass');
+            }
             //adBlockModal.remove();
             playVideoIfPaused();
         }
